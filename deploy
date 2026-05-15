@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Check if the .env file exists
+if [ -f .env ]; then
+  # Enable auto-export
+  set -a
+  source .env
+  # Disable auto-export
+  set +a
+else
+  echo "Error: .env file not found!"
+  exit 1
+fi
+
+FILES_TO_SEND=("app.js" "assets" "data" "index.html")
+
+echo "🚀 Starting deployment to $REMOTE_HOST..."
+
+# Loop through the files and sync them
+for ITEM in "${FILES_TO_SEND[@]}"; do
+    if [ -e "$ITEM" ]; then
+        echo "📤 Syncing $ITEM..."
+        # -a: archive mode (preserves permissions/symlinks)
+        # -v: verbose
+        # -z: compress during transfer
+        rsync -avz -e "ssh -p $REMOTE_PORT -i $REMOTE_SSH_KEY_PATH" "$ITEM" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DEST"
+    else
+        echo "⚠️  Warning: $ITEM not found, skipping."
+    fi
+done
+
+echo "✅ Deployment complete!"

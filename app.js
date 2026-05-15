@@ -1,4 +1,3 @@
-
 import { promptList } from './data/prompts.js';
 
 if (document.readyState !== 'loading') {    
